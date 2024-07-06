@@ -1,8 +1,8 @@
 package models
 
 type Order struct {
-	Id          int `json:"id"`
-	Service_ID  int `json:"service_id"`
-	User_ID     int `json:"user_id"`
-	Price_Total int `json:"price_total"`
+	ID        int `json:"id"`
+	ServiceID int `json:"service_id"`
+	UserID    int `json:"user_id"`
+	Sum       int `json:"sum"`
 }
