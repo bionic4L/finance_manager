@@ -1,14 +1,21 @@
 package v1
 
-import "github.com/gin-gonic/gin"
+import (
+	"log"
 
-func Router() {
+	"github.com/gin-gonic/gin"
+)
+
+// TODO: get
+
+func Router(address string) {
 	router := gin.Default()
 
-	router.GET("/balance/:id", getBalance)
+	router.GET("/balance", getBalance)
 	router.GET("/confirmed/:user_id/:service_id/:order_id/:sum", paymentConfirmed)
-	router.POST("/deposit/:id", addMoney)
+	router.POST("/deposit", DepositToUser)
 	router.POST("/reserve/:user_id/:service_id/:order_id/:price", reserveMoney)
 
-	router.Run("localhost:8080")
+	log.Print("running app...")
+	router.Run(address)
 }
