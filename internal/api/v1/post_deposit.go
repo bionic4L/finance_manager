@@ -3,17 +3,13 @@ package v1
 import (
 	"encoding/json"
 	"errors"
+	"finance_manager/internal/models"
 	dbactions "finance_manager/internal/repository/db_actions"
 	"io"
 	"log"
 
 	"github.com/gin-gonic/gin"
 )
-
-type Deposit struct {
-	ID            int `json:"id"`
-	DepositAmount int `json:"amount"`
-}
 
 func DepositToUser(c *gin.Context) {
 	if err := ValidateDeposit(c); err != nil {
@@ -28,7 +24,7 @@ func DepositToUser(c *gin.Context) {
 }
 
 func ValidateDeposit(c *gin.Context) error {
-	var dep Deposit
+	var dep models.Deposit
 
 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -52,8 +48,13 @@ func ValidateDeposit(c *gin.Context) error {
 	}
 
 	db := dbactions.User{}
-	ud, _ := db.DepositToUser(dep.DepositAmount)
-	if ud.ID != dep.ID {
+	ud, err := db.DepositToUser(dep.DepositAmount)
+	if err != nil {
+		c.Status(422)
+		c.Writer.Write([]byte("ошибка: средства не были зачислены"))
+		return errors.New("ошибка: средства не были зачислены")
+	}
+	if ud.ID != dep.UserID {
 		c.Status(404)
 		c.Writer.Write([]byte("пользователь с таким id не найден"))
 		return errors.New("пользователь с таким id не найден")
