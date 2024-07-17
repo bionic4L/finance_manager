@@ -1,25 +1,15 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	dbactions "finance_manager/internal/repository/db_actions"
 
-type (
-	CheckBalance interface {
-		GetUserBalance()
-	}
-
-	Deposit interface {
-		DepositToUser()
-	}
-
-	Transaction interface {
-		Transaction()
-	}
+	"github.com/jmoiron/sqlx"
 )
 
 type Repository struct {
-	CheckBalance
-	Deposit
-	Transaction
+	dbactions.Balance
+	dbactions.Deposit
+	dbactions.Transaction
 }
 
 func NewRepository(db *sqlx.DB) *Repository {

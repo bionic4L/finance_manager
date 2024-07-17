@@ -8,6 +8,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// type Balance struct {
+// 	service service.BalanceService
+// }
+
+// func BalanceRouter(r *gin.Engine, s service.BalanceService) {
+// 	b := &Balance{service: s}
+
+// 	r.GET("balance/:id", b.getBalance())
+// }
+
 func getBalance(c *gin.Context) {
 	err := ValidateGetBalance(c)
 	if err != nil {
@@ -36,12 +46,6 @@ func ValidateGetBalance(c *gin.Context) error {
 		c.Status(422)
 		c.Writer.Write([]byte("вы забыли указать параметр 'id'"))
 		return errors.New("вы забыли указать параметр 'id'")
-	}
-
-	if c.Request.Method != "GET" {
-		c.Status(405)
-		c.Writer.Write([]byte("метод не поддерживается"))
-		return errors.New("метод не поддерживается")
 	}
 
 	idFig, err := strconv.Atoi(userID)

@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+type Transaction interface {
+	Transaction()
+}
+
 func (t *TransactionInfo) Transaction(from int, to int, amount int) (TransactionInfo, User, error) {
 	user1 := User{
 		ID:      1,

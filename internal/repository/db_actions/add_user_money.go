@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+type Deposit interface {
+	DepositToUser()
+}
+
 func (ud *User) DepositToUser(amount int) (User, error) {
 
 	userTest := User{
