@@ -24,19 +24,19 @@ func getBalance(c *gin.Context) {
 		return
 	}
 	userID := c.Query("id")
-	IDInt, _ := strconv.Atoi(userID)
+	idInt, _ := strconv.Atoi(userID)
 
-	db := dbactions.User{}
-	ud, _ := db.GetUserBalance()
+	db := dbactions.BalanceRepository{}
+	userData, _ := db.GetUserBalance(idInt)
 
-	if ud.ID != IDInt {
+	if userData.ID != idInt {
 		c.Status(404)
 		c.Writer.Write([]byte("пользователь с таким id не найден"))
 		return
 	}
 
 	c.Status(200)
-	c.JSON(200, ud)
+	c.JSON(200, userData)
 }
 
 func ValidateGetBalance(c *gin.Context) error {

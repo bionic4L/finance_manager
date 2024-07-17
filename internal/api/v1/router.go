@@ -10,9 +10,10 @@ func Router(address string) {
 	router := gin.Default()
 
 	router.GET("/balance", getBalance)
-	router.POST("/transaction", Transaction)
+	// router.POST("/transaction", Transaction)
 	router.POST("/deposit", DepositToUser)
-	router.POST("/reserve", reserveMoney)
+	router.POST("/user-add", addUser)
+	router.DELETE("/user-delete", deleteUser)
 
 	log.Print("running app...")
 	router.Run(address)

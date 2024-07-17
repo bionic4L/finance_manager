@@ -1,12 +1,24 @@
 package dbactions
 
-type Balance interface {
-	GetUserBalance()
+import (
+	"finance_manager/internal/models"
+
+	"github.com/jmoiron/sqlx"
+)
+
+type BalanceRepository struct {
+	DB *sqlx.DB
 }
 
-func (ud *User) GetUserBalance() (User, error) {
-	return User{
-		ID:      1,
-		Balance: 777,
-	}, nil
+func (br *BalanceRepository) GetUserBalance(id int) (*models.User, error) {
+	query := "SELECT id, name, balance FROM users WHERE id = ?"
+	row := br.DB.QueryRow(query, id)
+
+	var user models.User
+
+	if err := row.Scan(&user.ID, &user.Name, &user.Balance); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

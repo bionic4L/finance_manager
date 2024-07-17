@@ -1,17 +1,11 @@
 package repository
 
-import (
-	dbactions "finance_manager/internal/repository/db_actions"
+import "finance_manager/internal/models"
 
-	"github.com/jmoiron/sqlx"
-)
-
-type Repository struct {
-	dbactions.Balance
-	dbactions.Deposit
-	dbactions.Transaction
+type BalanceRepository interface {
+	GetUserBalance(id int) (*models.User, error)
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{}
+type DepositRepository interface {
+	Deposit(amount int) (*models.User, error)
 }

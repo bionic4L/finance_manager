@@ -3,25 +3,32 @@ package dbactions
 import (
 	"errors"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
-type Deposit interface {
-	DepositToUser()
+type DepositRepository struct {
+	DB *sqlx.DB
 }
 
-func (ud *User) DepositToUser(amount int) (User, error) {
+func (d *DepositRepository) DepositToUser(id int, amount int) error {
+	var userBalance int
+	queryGetUserBalance := "SELECT balance FROM users WHERE id = 1$"
+	queryUpdateUserBalance := "UPDATE users SET balance = $1 WHERE id = $2"
 
-	userTest := User{
-		ID:      2,
-		Balance: 4,
+	if err := d.DB.Get(&userBalance, queryGetUserBalance, id); err != nil {
+		return err
 	}
 
-	if userTest.Balance+amount < 0 {
-		log.Printf("Отрицательный баланс: %d", userTest.Balance+amount)
-		return userTest, errors.New("отрицательный баланс")
+	_, err := d.DB.Exec(queryUpdateUserBalance, userBalance+amount, id)
+	if err != nil {
+		return err
 	}
 
-	userTest.Balance = userTest.Balance + amount
+	if userBalance+amount < 0 {
+		log.Printf("Отрицательный баланс: %d", userBalance+amount)
+		return errors.New("отрицательный баланс")
+	}
 
-	return userTest, nil
+	return nil
 }

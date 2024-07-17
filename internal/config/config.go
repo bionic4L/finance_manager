@@ -19,7 +19,7 @@ type (
 	}
 
 	HTTPServer struct {
-		Address string `yaml:"address" env-default:"localhost:8888"`
+		Address string `yaml:"address" env-default:"localhost:7777"`
 	}
 
 	PostgreSQL_DB struct {
