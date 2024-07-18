@@ -5,11 +5,11 @@ import (
 )
 
 type DepositService struct {
-	DepositRepository dbactions.DepositRepository
+	repository dbactions.DepositRepository
 }
 
 func (ds *DepositService) Deposit(id int, amount int) error {
-	err := ds.DepositRepository.DepositToUser(id, amount)
+	err := ds.repository.Deposit(id, amount)
 	if err != nil {
 		return err
 	}

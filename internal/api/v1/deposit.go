@@ -43,7 +43,7 @@ func ValidateDeposit(c *gin.Context) error {
 	}
 
 	db := dbactions.DepositRepository{}
-	if err := db.DepositToUser(dep.UserID, dep.DepositAmount); err != nil {
+	if err := db.Deposit(dep.UserID, dep.DepositAmount); err != nil {
 		return err
 	}
 

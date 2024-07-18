@@ -6,11 +6,17 @@ import (
 )
 
 type BalanceService struct {
-	Balance dbactions.BalanceRepository
+	repository dbactions.BalanceRepository
 }
 
-func (b BalanceService) GetBalance(id int) (*models.User, error) {
-	userBalance, err := b.Balance.GetUserBalance(id)
+func NewBalanceService(repo dbactions.BalanceRepository) *BalanceService {
+	return &BalanceService{
+		repository: repo,
+	}
+}
+
+func (bs BalanceService) GetBalance(id int) (*models.User, error) {
+	userBalance, err := bs.repository.GetUserBalance(id)
 	if err != nil {
 		return nil, err
 	}

@@ -3,22 +3,24 @@ package v1
 import (
 	"errors"
 	dbactions "finance_manager/internal/repository/db_actions"
+	"finance_manager/internal/service"
+	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-// type Balance struct {
-// 	service service.BalanceService
-// }
+type Balance struct {
+	service service.BalanceService
+}
 
-// func BalanceRouter(r *gin.Engine, s service.BalanceService) {
-// 	b := &Balance{service: s}
+func BalanceRouter(r *gin.Engine, service service.BalanceService) {
+	b := &Balance{service: service}
 
-// 	r.GET("balance/:id", b.getBalance())
-// }
+	r.GET("/balance", b.getBalance)
+}
 
-func getBalance(c *gin.Context) {
+func (b *Balance) getBalance(c *gin.Context) {
 	err := ValidateGetBalance(c)
 	if err != nil {
 		return
@@ -27,7 +29,11 @@ func getBalance(c *gin.Context) {
 	idInt, _ := strconv.Atoi(userID)
 
 	db := dbactions.BalanceRepository{}
-	userData, _ := db.GetUserBalance(idInt)
+	userData, err := db.GetUserBalance(idInt)
+	if err != nil {
+		log.Print(err)
+		return
+	}
 
 	if userData.ID != idInt {
 		c.Status(404)

@@ -21,6 +21,8 @@ func OpenPosgresDB(cfg *config.PostgreSQL_DB) error {
 		return err
 	}
 
+	defer CloseConnection(db.DB)
+
 	if err := db.Ping(); err != nil {
 		return err
 	}

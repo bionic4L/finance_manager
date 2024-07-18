@@ -10,6 +10,10 @@ type BalanceRepository struct {
 	DB *sqlx.DB
 }
 
+func NewBalanceRepository(DB *sqlx.DB) *BalanceRepository {
+	return &BalanceRepository{DB: DB}
+}
+
 func (br *BalanceRepository) GetUserBalance(id int) (*models.User, error) {
 	query := "SELECT id, name, balance FROM users WHERE id = ?"
 	row := br.DB.QueryRow(query, id)

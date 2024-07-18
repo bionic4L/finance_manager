@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"finance_manager/internal/service"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 func Router(address string) {
 	router := gin.Default()
 
-	router.GET("/balance", getBalance)
+	BalanceRouter(router, service.BalanceService{})
 	// router.POST("/transaction", Transaction)
 	router.POST("/deposit", DepositToUser)
 	router.POST("/user-add", addUser)
