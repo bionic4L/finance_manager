@@ -2,6 +2,9 @@ package repository
 
 import (
 	"finance_manager/internal/models"
+	dbactions "finance_manager/internal/repository/db_actions"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type BalanceRepository interface {
@@ -17,9 +20,9 @@ type Repository struct {
 	DepositRepository
 }
 
-// func NewRepository(DB *sqlx.DB) *Repository {
-// 	return &Repository{
-// 		BalanceRepository: BalanceRepository,
-// 		DepositRepository: DepositRepository,
-// 	}
-// }
+func NewRepository(DB *sqlx.DB) *Repository {
+	return &Repository{
+		BalanceRepository: dbactions.NewBalanceRepository(DB),
+		DepositRepository: dbactions.NewDepositRepository(DB),
+	}
+}

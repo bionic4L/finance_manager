@@ -16,7 +16,7 @@ func NewBalanceService(repo dbactions.BalanceRepository) *BalanceService {
 }
 
 func (bs BalanceService) GetBalance(id int) (*models.User, error) {
-	userBalance, err := bs.repository.GetUserBalance(id)
+	userBalance, err := bs.repository.GetUserBalance(id) //прокид с сервисного слоя на слой репозитория
 	if err != nil {
 		return nil, err
 	}

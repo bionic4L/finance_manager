@@ -2,7 +2,6 @@ package v1
 
 import (
 	"errors"
-	dbactions "finance_manager/internal/repository/db_actions"
 	"finance_manager/internal/service"
 	"log"
 	"strconv"
@@ -25,17 +24,15 @@ func (b *Balance) getBalance(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	userID := c.Query("id")
-	idInt, _ := strconv.Atoi(userID)
+	userID, _ := strconv.Atoi(c.Query("id"))
 
-	db := dbactions.BalanceRepository{}
-	userData, err := db.GetUserBalance(idInt)
+	userData, err := b.service.GetBalance(userID) //прокид с транспортного уровня на сервисный
 	if err != nil {
 		log.Print(err)
 		return
 	}
 
-	if userData.ID != idInt {
+	if userData.ID != userID {
 		c.Status(404)
 		c.Writer.Write([]byte("пользователь с таким id не найден"))
 		return

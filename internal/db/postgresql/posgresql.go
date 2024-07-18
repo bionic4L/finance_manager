@@ -13,28 +13,28 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func OpenPosgresDB(cfg *config.PostgreSQL_DB) error {
+func OpenPosgresDB(cfg *config.PostgreSQL_DB) (*sqlx.DB, error) {
 	db, err := sqlx.Open(
 		"postgres",
 		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer CloseConnection(db.DB)
 
 	if err := db.Ping(); err != nil {
-		return err
+		return nil, err
 	}
 
 	DB := db.DB
 	log.Print("creating migrations...")
 	if err := goose.Up(DB, "D:/LRN GO/finance_manager/internal/db/postgresql/migrations"); err != nil {
 		log.Print("migrations not applied")
-		return err
+		return nil, err
 	}
 
-	return nil
+	return db, nil
 }
 
 func CloseConnection(db *sql.DB) {
