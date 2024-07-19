@@ -2,27 +2,28 @@ package dbactions
 
 import (
 	"errors"
+	"finance_manager/internal/models"
 	"log"
 
 	"github.com/jmoiron/sqlx"
 )
 
 const (
-	queryGetUserBalance    = "SELECT balance FROM users WHERE id = 1$"
-	queryUpdateUserBalance = "UPDATE users SET balance = $1 WHERE id = $2"
+	queryGetUserBalance    = "SELECT balance FROM users WHERE user_id = $1"
+	queryUpdateUserBalance = "UPDATE users SET balance = $1 WHERE user_id = $2"
 )
 
 type DepositRepository struct {
-	DB *sqlx.DB
+	db *sqlx.DB
 }
 
-func NewDepositRepository(DB *sqlx.DB) *DepositRepository {
-	return &DepositRepository{DB: DB}
+func NewDepositRepository(db *sqlx.DB) *DepositRepository {
+	return &DepositRepository{db: db}
 }
 
-func (d *DepositRepository) Deposit(id int, amount int) error {
+func (d *DepositRepository) Deposit(user_id int, amount int) error {
 
-	userBalance, err := d.DBSelectBalance(id)
+	userBalance, err := d.DBSelectBalance(user_id)
 	if err != nil {
 		log.Print("error while selecting balance")
 		return err
@@ -33,7 +34,7 @@ func (d *DepositRepository) Deposit(id int, amount int) error {
 		return errors.New("отрицательный баланс")
 	}
 
-	if err := d.DBUpdateBalance(id, userBalance, amount); err != nil {
+	if err := d.DBUpdateBalance(user_id, userBalance, amount); err != nil {
 		log.Print("error while updating balance")
 		return err
 	}
@@ -41,18 +42,20 @@ func (d *DepositRepository) Deposit(id int, amount int) error {
 	return nil
 }
 
-func (d *DepositRepository) DBSelectBalance(id int) (int, error) {
-	var userBalance int
+func (d *DepositRepository) DBSelectBalance(user_id int) (int, error) {
+	var user models.User
 
-	if err := d.DB.Get(&userBalance, queryGetUserBalance, id); err != nil {
-		return -1, err
+	row := d.db.QueryRow(queryGetUserBalance, user_id)
+
+	if err := row.Scan(&user.Balance); err != nil {
+		return user.Balance, err
 	}
 
-	return userBalance, nil
+	return user.Balance, nil
 }
 
-func (d *DepositRepository) DBUpdateBalance(id int, balance int, amount int) error {
-	_, err := d.DB.Exec(queryUpdateUserBalance, balance+amount, id)
+func (d *DepositRepository) DBUpdateBalance(user_id int, balance int, amount int) error {
+	_, err := d.db.Exec(queryUpdateUserBalance, balance+amount, user_id)
 	if err != nil {
 		return err
 	}

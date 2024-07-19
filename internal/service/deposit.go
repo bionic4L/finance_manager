@@ -1,11 +1,13 @@
 package service
 
-import (
-	dbactions "finance_manager/internal/repository/db_actions"
-)
+import "finance_manager/internal/repository"
 
 type DepositService struct {
-	repository dbactions.DepositRepository
+	repository repository.DepositRepository
+}
+
+func NewDepositService(repository repository.DepositRepository) *DepositService {
+	return &DepositService{repository: repository}
 }
 
 func (ds *DepositService) Deposit(id int, amount int) error {

@@ -9,8 +9,8 @@ import (
 
 func Router(router *gin.Engine, repository *repository.Repository) {
 	BalanceRouter(router, service.NewBalanceService(repository.BalanceRepository))
+	DepositRouter(router, service.NewDepositService(repository.DepositRepository))
 	// router.POST("/transaction", Transaction)
-	router.POST("/deposit", DepositToUser)
 	router.POST("/user-add", addUser)
 	router.DELETE("/user-delete", deleteUser)
 }

@@ -5,13 +5,24 @@ import (
 	"errors"
 	"finance_manager/internal/models"
 	dbactions "finance_manager/internal/repository/db_actions"
+	"finance_manager/internal/service"
 	"io"
 	"log"
 
 	"github.com/gin-gonic/gin"
 )
 
-func DepositToUser(c *gin.Context) {
+type Deposit struct {
+	service *service.DepositService
+}
+
+func DepositRouter(r *gin.Engine, service *service.DepositService) {
+	d := &Deposit{service: service}
+
+	r.POST("/deposit", d.DepositToUser)
+}
+
+func (d Deposit) DepositToUser(c *gin.Context) {
 	if err := ValidateDeposit(c); err != nil {
 		c.Status(400)
 		log.Print("валидация запроса не пройдена")
@@ -51,11 +62,6 @@ func ValidateDeposit(c *gin.Context) error {
 	// 	c.Status(422)
 	// 	c.Writer.Write([]byte("ошибка: средства не были зачислены"))
 	// 	return errors.New("ошибка: средства не были зачислены")
-	// }
-	// if ud.ID != dep.UserID {
-	// 	c.Status(404)
-	// 	c.Writer.Write([]byte("пользователь с таким id не найден"))
-	// 	return errors.New("пользователь с таким id не найден")
 	// }
 
 	c.JSON(200, dep)
