@@ -1,19 +1,16 @@
 package v1
 
 import (
-	"log"
+	"finance_manager/internal/repository"
+	"finance_manager/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Router(address string) {
-	router := gin.Default()
-
-	router.GET("/balance", getBalance)
-	router.POST("/transaction", Transaction)
+func Router(router *gin.Engine, repository *repository.Repository) {
+	BalanceRouter(router, service.NewBalanceService(repository.BalanceRepository))
+	// router.POST("/transaction", Transaction)
 	router.POST("/deposit", DepositToUser)
-	router.POST("/reserve", reserveMoney)
-
-	log.Print("running app...")
-	router.Run(address)
+	router.POST("/user-add", addUser)
+	router.DELETE("/user-delete", deleteUser)
 }

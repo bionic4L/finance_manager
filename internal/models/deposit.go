@@ -1,7 +1,7 @@
 package models
 
 type Deposit struct {
-	ID            int `json:"id"`
+	DepositID     int `json:"deposit_id"`
 	UserID        int `json:"user_id"`
 	DepositAmount int `json:"amount"`
 }
