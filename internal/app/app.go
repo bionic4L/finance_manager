@@ -6,11 +6,14 @@ import (
 	"finance_manager/internal/db/postgresql"
 	"finance_manager/internal/repository"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Run(configPath string) error {
 	log.Print("cooking config...")
 	cfg, err := config.GetConfig()
+	router := gin.Default()
 
 	if err != nil {
 		log.Fatal("config not cooked :(")
@@ -29,17 +32,22 @@ func Run(configPath string) error {
 		log.Print(err)
 		log.Fatal("db not cooked :(")
 	}
+	defer postgresql.CloseConnection(db.DB)
 	log.Print("db is active!")
 
 	log.Print("creating repository...")
-	repository.NewRepository(db)
+	rootRepository := repository.NewRepository(db)
 	log.Print("repository cooked!")
 
 	log.Print("cooking router...")
-	v1.Router(cfg.HTTPServer.Address)
+	v1.Router(router, rootRepository)
 	log.Print("router cooked!")
 
+	log.Print("*****starting*****")
+
 	// log.Print("cooking logger...")
+
+	router.Run(cfg.HTTPServer.Address)
 
 	return nil
 }

@@ -2,14 +2,14 @@ package service
 
 import (
 	"finance_manager/internal/models"
-	dbactions "finance_manager/internal/repository/db_actions"
+	"finance_manager/internal/repository"
 )
 
 type BalanceService struct {
-	repository dbactions.BalanceRepository
+	repository repository.BalanceRepository
 }
 
-func NewBalanceService(repo dbactions.BalanceRepository) *BalanceService {
+func NewBalanceService(repo repository.BalanceRepository) *BalanceService {
 	return &BalanceService{
 		repository: repo,
 	}

@@ -10,10 +10,10 @@ import (
 )
 
 type Balance struct {
-	service service.BalanceService
+	service *service.BalanceService
 }
 
-func BalanceRouter(r *gin.Engine, service service.BalanceService) {
+func BalanceRouter(r *gin.Engine, service *service.BalanceService) {
 	b := &Balance{service: service}
 
 	r.GET("/balance", b.getBalance)

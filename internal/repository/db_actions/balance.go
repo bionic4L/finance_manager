@@ -7,16 +7,16 @@ import (
 )
 
 type BalanceRepository struct {
-	DB *sqlx.DB
+	db *sqlx.DB
 }
 
-func NewBalanceRepository(DB *sqlx.DB) *BalanceRepository {
-	return &BalanceRepository{DB: DB}
+func NewBalanceRepository(db *sqlx.DB) *BalanceRepository {
+	return &BalanceRepository{db: db}
 }
 
 func (br *BalanceRepository) GetUserBalance(id int) (*models.User, error) {
-	query := "SELECT * FROM users WHERE id = ?"
-	row := br.DB.QueryRow(query, id)
+	query := "SELECT * FROM users WHERE id = $1"
+	row := br.db.QueryRow(query, id)
 
 	var user models.User
 
