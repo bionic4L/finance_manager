@@ -12,13 +12,12 @@ func (ud *User) DepositToUser(amount int) (User, error) {
 		Balance: 4,
 	}
 
-	finalBalance := userTest.Balance + amount
-	if finalBalance < 0 {
-		log.Printf("Отрицательный баланс: %d", finalBalance)
+	if userTest.Balance+amount < 0 {
+		log.Printf("Отрицательный баланс: %d", userTest.Balance+amount)
 		return userTest, errors.New("отрицательный баланс")
 	}
 
-	userTest.Balance = finalBalance
+	userTest.Balance = userTest.Balance + amount
 
 	return userTest, nil
 }
