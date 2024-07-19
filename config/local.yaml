@@ -4,4 +4,11 @@ http_server:
   address: "localhost:8888"
   timeout: 5s
   idle_timeout: 60s
+postgres_db:
+  host: "0.0.0.0"
+  port: "8888"
+  user: "bionic4l"
+  password: "12345"
+  db_name: "fm_db"
+  ssl_mode: "disable"
 logger_level: "debug"
