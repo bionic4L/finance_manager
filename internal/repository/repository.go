@@ -15,9 +15,19 @@ type DepositRepository interface {
 	Deposit(id int, amount int) error
 }
 
+type UserCreateRepository interface {
+	UserCreate(name string)
+}
+
+type UserDeleteRepository interface {
+	UserDelete(id int)
+}
+
 type Repository struct {
 	BalanceRepository
 	DepositRepository
+	UserCreateRepository
+	UserDeleteRepository
 }
 
 func NewRepository(DB *sqlx.DB) *Repository {
