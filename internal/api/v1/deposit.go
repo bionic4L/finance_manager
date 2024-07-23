@@ -52,7 +52,8 @@ func (d *Deposit) Deposit(c *gin.Context) {
 	}
 
 	c.Status(200)
-	c.JSON(200, dep)
+	// c.JSON(200, dep)
+	c.Writer.Write([]byte("успешный депозит"))
 
 }
 

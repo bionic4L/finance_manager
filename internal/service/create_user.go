@@ -10,8 +10,8 @@ func NewCreateUserService(repository repository.UserCreateRepository) *CreateUse
 	return &CreateUserService{repository: repository}
 }
 
-func (cus CreateUserService) CreateUser(name string) error {
-	if err := cus.CreateUser(name); err != nil {
+func (cus *CreateUserService) UserCreate(name string) error {
+	if err := cus.repository.UserCreate(name); err != nil {
 		return err
 	}
 
