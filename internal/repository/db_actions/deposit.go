@@ -3,13 +3,14 @@ package dbactions
 import (
 	"errors"
 	"finance_manager/internal/models"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/jmoiron/sqlx"
 )
 
 const (
-	queryGetUserInfoByID     = `SELECT * FROM users WHERE id = $1`
+	queryGetUserInfoByID     = `SELECT (id, name, balance) FROM users WHERE id = $1`
 	queryUpdateuserInfo      = `UPDATE users SET balance = $1 WHERE id = $2`
 	queryInsertInDepositList = `INSERT INTO deposits (user_id, amount) VALUES ($1, $2)`
 )
@@ -25,22 +26,22 @@ func NewDepositRepository(db *sqlx.DB) *DepositRepository {
 func (d *DepositRepository) Deposit(user_id int, depAmount int) error {
 	userInfo, err := d.DBSelectUserInfoByID(user_id)
 	if err != nil {
-		log.Print("error while selecting balance")
+		log.Error("error while selecting balance")
 		return err
 	}
 
 	if userInfo.Balance+depAmount < 0 {
-		log.Printf("Отрицательный баланс: %d", userInfo.Balance+depAmount)
+		log.Errorf("Отрицательный баланс: %d", userInfo.Balance+depAmount)
 		return errors.New("отрицательный баланс")
 	}
 
 	if err := d.DBUpdateBalance(userInfo.ID, userInfo.Balance, depAmount); err != nil {
-		log.Print("error while updating balance")
+		log.Error("error while updating balance")
 		return err
 	}
 
 	if err := d.DBInsertDepInfo(userInfo.ID, depAmount); err != nil {
-		log.Print("error while inserting deposit info")
+		log.Error("error while inserting deposit info")
 		return err
 	}
 

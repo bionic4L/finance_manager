@@ -19,21 +19,22 @@ type UserCreateRepository interface {
 	UserCreate(name string) error
 }
 
-type UserDeleteRepository interface {
-	UserDelete(id int)
+type TransactionRepository interface {
+	Transaction(fromID, toID, amount int) error
 }
 
 type Repository struct {
 	BalanceRepository
 	DepositRepository
 	UserCreateRepository
-	UserDeleteRepository
+	TransactionRepository
 }
 
 func NewRepository(DB *sqlx.DB) *Repository {
 	return &Repository{
-		BalanceRepository:    dbactions.NewBalanceRepository(DB),
-		DepositRepository:    dbactions.NewDepositRepository(DB),
-		UserCreateRepository: dbactions.NewCreateUserRepository(DB),
+		BalanceRepository:     dbactions.NewBalanceRepository(DB),
+		DepositRepository:     dbactions.NewDepositRepository(DB),
+		UserCreateRepository:  dbactions.NewCreateUserRepository(DB),
+		TransactionRepository: dbactions.NewTransactionRepository(DB),
 	}
 }

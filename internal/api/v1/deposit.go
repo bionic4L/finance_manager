@@ -6,7 +6,8 @@ import (
 	"finance_manager/internal/models"
 	"finance_manager/internal/service"
 	"io"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )

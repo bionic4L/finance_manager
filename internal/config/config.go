@@ -2,8 +2,9 @@ package config
 
 import (
 	"errors"
-	"log"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )

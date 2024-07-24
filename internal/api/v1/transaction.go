@@ -1,75 +1,60 @@
 package v1
 
-// import (
-// 	"encoding/json"
-// 	"errors"
-// 	"finance_manager/internal/models"
-// 	dbactions "finance_manager/internal/repository/db_actions"
-// 	"io"
-// 	"log"
+import (
+	"encoding/json"
+	"errors"
+	"finance_manager/internal/models"
+	"finance_manager/internal/service"
+	"io"
 
-// 	"github.com/gin-gonic/gin"
-// )
+	log "github.com/sirupsen/logrus"
 
-// func Transaction(c *gin.Context) {
-// 	if err := ValidateTransaction(c); err != nil {
-// 		c.Status(400)
-// 		log.Print("валидация запроса не пройдена")
-// 		return
-// 	}
-// 	c.Status(200)
-// }
+	"github.com/gin-gonic/gin"
+)
 
-// func ValidateTransaction(c *gin.Context) error {
-// 	var t models.Transaction
+type Transaction struct {
+	service *service.TransactionService
+}
 
-// 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
-// 	if err != nil {
-// 		c.Status(400)
-// 		return errors.New("ошибка чтения тела запроса")
-// 	}
+func TransactionRouter(r *gin.Engine, service *service.TransactionService) {
+	t := Transaction{service: service}
 
-// 	if err := json.Unmarshal(JSONRequestBody, &t); err != nil {
-// 		c.Status(400)
-// 		return errors.New("ошибка декодирования json")
-// 	}
+	r.PATCH("/transaction", t.Transaction)
+}
 
-// 	if c.Request.Method != "POST" {
-// 		c.Status(405)
-// 		return errors.New("метод не поддерживается")
-// 	}
+func (t *Transaction) Transaction(c *gin.Context) {
+	var transactionModel *models.Transaction
 
-// 	if c.Request.Header.Get("Content-Type") != "application/json" {
-// 		c.Status(415)
-// 		return errors.New("неподдерживаемый тип контента")
-// 	}
+	JSONRequestBody, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.Status(400)
+		log.Error(errors.New("ошибка чтения тела запроса"))
+		return
+	}
 
-// 	db := dbactions.TransactionInfo{}
-// 	transaction, user, err := db.Transaction(t.FromID, t.ToID, t.Amount)
-// 	if t.FromID != transaction.FromID || t.ToID != transaction.ToID {
-// 		c.Status(400)
-// 		c.Writer.Write([]byte("пользователь(и) с таким id не найдены"))
-// 		log.Print(t.FromID)
-// 		log.Print(t.ToID)
-// 		log.Print(transaction.FromID)
-// 		log.Print(transaction.ToID)
-// 		return errors.New("пользователь(и) с таким id не найдены")
-// 	}
+	if err := json.Unmarshal(JSONRequestBody, &transactionModel); err != nil {
+		c.Status(400)
+		log.Error(errors.New("ошибка декодирования json"))
+		return
+	}
 
-// 	if t.FromID == t.ToID {
-// 		c.Status(400)
-// 		c.Writer.Write([]byte("нельзя перевести средства самому себе"))
-// 		return errors.New("нельзя перевести средства самому себе")
-// 	}
+	if err := t.service.Transaction(transactionModel.FromID, transactionModel.ToID, transactionModel.Amount); err != nil {
+		c.Status(400)
+		c.Writer.Write([]byte("ошибка во время выполнения транзакции"))
+		log.Error(err)
+		return
+	}
 
-// 	if err != nil {
-// 		c.Status(400)
-// 		c.Writer.Write([]byte("ошибка во время выполнения транзакции"))
-// 		return errors.New("ошибка во время выполнения транзакции")
-// 	}
+	if err := ValidateTransaction(c, transactionModel); err != nil {
+		c.Status(400)
+		log.Warn("валидация запроса не пройдена")
+		return
+	}
 
-// 	c.JSON(200, transaction)
-// 	c.JSON(200, user)
+	c.Writer.Write([]byte("перевод выполнен!"))
+	c.Status(200)
+}
 
-// 	return nil
-// }
+func ValidateTransaction(c *gin.Context, transactionModel *models.Transaction) error {
+	return nil
+}

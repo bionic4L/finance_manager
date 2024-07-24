@@ -5,7 +5,8 @@ import (
 	"finance_manager/internal/config"
 	_ "finance_manager/internal/db/postgresql/migrations"
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"

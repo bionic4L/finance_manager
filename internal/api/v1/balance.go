@@ -3,8 +3,9 @@ package v1
 import (
 	"errors"
 	"finance_manager/internal/service"
-	"log"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
