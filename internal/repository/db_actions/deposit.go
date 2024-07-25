@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	queryGetUserInfoByID     = `SELECT (id, name, balance) FROM users WHERE id = $1`
+	queryGetUserInfoByID     = `SELECT id, name, balance FROM users WHERE id = $1`
 	queryUpdateuserInfo      = `UPDATE users SET balance = $1 WHERE id = $2`
 	queryInsertInDepositList = `INSERT INTO deposits (user_id, amount) VALUES ($1, $2)`
 )

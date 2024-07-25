@@ -19,7 +19,7 @@ type Transaction struct {
 func TransactionRouter(r *gin.Engine, service *service.TransactionService) {
 	t := Transaction{service: service}
 
-	r.PATCH("/transaction", t.Transaction)
+	r.POST("/transaction", t.Transaction)
 }
 
 func (t *Transaction) Transaction(c *gin.Context) {

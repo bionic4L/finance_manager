@@ -8,7 +8,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const queryUpdateUserBalance = `UPDATE users SET balance = $1 WHERE id = $2`
+const queryUpdateUserBalanceMinus = `UPDATE users SET balance = balance - $1 WHERE id = $2`
+const queryUpdateUserBalancePlus = `UPDATE users SET balance = balance + $1 WHERE id = $2`
+const queryInsertTransactionInfo = `INSERT INTO transactions (from_id, to_id, amount) VALUES ($1, $2, $3)`
 
 type TransactionRepository struct {
 	db *sqlx.DB
@@ -44,7 +46,12 @@ func (t TransactionRepository) Transaction(fromID, toID, amount int) error {
 		return errors.New("перевод меньше минимальной суммы")
 	}
 
-	t.DBUpdateBalanceTransaction(fromUser, toUser, amount)
+	if err := t.DBUpdateBalanceTransaction(fromUser, toUser, amount); err != nil {
+		return err
+	}
+	if err := t.DBInsertTransactionInfo(fromID, toID, amount); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -62,14 +69,23 @@ func (t *TransactionRepository) DBSelectUserInfoByID(user_id int) (*models.User,
 }
 
 func (t *TransactionRepository) DBUpdateBalanceTransaction(fromUser, toUser *models.User, amount int) error {
-	_, err := t.db.Exec(queryUpdateUserBalance, fromUser.ID, fromUser.Balance-amount)
+	_, err := t.db.Exec(queryUpdateUserBalanceMinus, amount, fromUser.ID)
 	if err != nil {
 		return err
 	}
 
-	_, errr := t.db.Exec(queryUpdateUserBalance, toUser.ID, toUser.Balance+amount)
+	_, errr := t.db.Exec(queryUpdateUserBalancePlus, amount, toUser.ID)
 	if errr != nil {
 		return errr
 	}
+	return nil
+}
+
+func (d *TransactionRepository) DBInsertTransactionInfo(fromID int, toID int, amount int) error {
+	_, err := d.db.Exec(queryInsertTransactionInfo, fromID, toID, amount)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

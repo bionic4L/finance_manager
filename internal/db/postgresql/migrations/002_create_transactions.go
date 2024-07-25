@@ -15,6 +15,7 @@ func upTransactions(tx *sql.Tx) error {
 				transaction_id SERIAL PRIMARY KEY,
 				from_id INT,
 				to_id INT,
+				amount INT,
 				FOREIGN KEY (from_id) REFERENCES users(id),
 				FOREIGN KEY (to_id) REFERENCES users(id)
 );`
