@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"finance_manager/internal/models"
 	"finance_manager/internal/repository"
 )
@@ -15,8 +16,8 @@ func NewBalanceService(repo repository.BalanceRepository) *BalanceService {
 	}
 }
 
-func (bs BalanceService) GetBalance(id int) (*models.User, error) {
-	userData, err := bs.repository.GetUserBalance(id) //прокид с сервисного слоя на слой репозитория
+func (bs BalanceService) GetBalance(ctx context.Context, id int) (*models.User, error) {
+	userData, err := bs.repository.GetUserBalance(ctx, id) //прокид с сервисного слоя на слой репозитория
 	if err != nil {
 		return nil, err
 	}

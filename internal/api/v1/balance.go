@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"errors"
 	"finance_manager/internal/service"
 	"strconv"
@@ -21,13 +22,15 @@ func BalanceRouter(r *gin.Engine, service *service.BalanceService) {
 }
 
 func (b *Balance) getBalance(c *gin.Context) {
+	ctx := context.Background() // правильно ли? Что дальше?
+
 	err := ValidateGetBalance(c)
 	if err != nil {
 		return
 	}
 	userID, _ := strconv.Atoi(c.Query("id"))
 
-	userData, err := b.service.GetBalance(userID) //прокид с транспортного уровня на сервисный
+	userData, err := b.service.GetBalance(ctx, userID) //прокид с транспортного уровня на сервисный
 	if err != nil {
 		log.Print(err)
 		return

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"finance_manager/internal/models"
 	dbactions "finance_manager/internal/repository/db_actions"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type BalanceRepository interface {
-	GetUserBalance(id int) (*models.User, error)
+	GetUserBalance(ctx context.Context, id int) (*models.User, error)
 }
 
 type DepositRepository interface {

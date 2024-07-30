@@ -1,6 +1,7 @@
 package dbactions
 
 import (
+	"context"
 	"finance_manager/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -14,7 +15,7 @@ func NewBalanceRepository(db *sqlx.DB) *BalanceRepository {
 	return &BalanceRepository{db: db}
 }
 
-func (br *BalanceRepository) GetUserBalance(id int) (*models.User, error) {
+func (br *BalanceRepository) GetUserBalance(ctx context.Context, id int) (*models.User, error) {
 	query := "SELECT * FROM users WHERE id = $1"
 	row := br.db.QueryRow(query, id)
 
