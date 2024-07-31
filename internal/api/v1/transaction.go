@@ -24,6 +24,7 @@ func TransactionRouter(r *gin.Engine, service *service.TransactionService) {
 
 func (t *Transaction) Transaction(c *gin.Context) {
 	var transactionModel *models.Transaction
+	ctx := c.Request.Context()
 
 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -38,7 +39,7 @@ func (t *Transaction) Transaction(c *gin.Context) {
 		return
 	}
 
-	if err := t.service.Transaction(transactionModel.FromID, transactionModel.ToID, transactionModel.Amount); err != nil {
+	if err := t.service.Transaction(ctx, transactionModel.FromID, transactionModel.ToID, transactionModel.Amount); err != nil {
 		c.Status(400)
 		c.Writer.Write([]byte("ошибка во время выполнения транзакции"))
 		log.Error(err)

@@ -13,15 +13,15 @@ type BalanceRepository interface {
 }
 
 type DepositRepository interface {
-	Deposit(id int, amount int) error
+	Deposit(ctx context.Context, id int, amount int) error
 }
 
 type UserCreateRepository interface {
-	UserCreate(name string) error
+	UserCreate(ctx context.Context, name string) error
 }
 
 type TransactionRepository interface {
-	Transaction(fromID, toID, amount int) error
+	Transaction(ctx context.Context, fromID, toID, amount int) error
 }
 
 type Repository struct {

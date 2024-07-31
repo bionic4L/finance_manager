@@ -1,6 +1,8 @@
 package dbactions
 
 import (
+	"context"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -14,7 +16,7 @@ func NewCreateUserRepository(db *sqlx.DB) *UserCreateRepository {
 	return &UserCreateRepository{db: db}
 }
 
-func (cur *UserCreateRepository) UserCreate(name string) error {
+func (cur *UserCreateRepository) UserCreate(ctx context.Context, name string) error {
 	_, err := cur.db.Exec(queryInsertNewUser, name)
 	if err != nil {
 		return err

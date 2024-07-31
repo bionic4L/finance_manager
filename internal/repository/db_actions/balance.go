@@ -17,7 +17,7 @@ func NewBalanceRepository(db *sqlx.DB) *BalanceRepository {
 
 func (br *BalanceRepository) GetUserBalance(ctx context.Context, id int) (*models.User, error) {
 	query := "SELECT * FROM users WHERE id = $1"
-	row := br.db.QueryRow(query, id)
+	row := br.db.QueryRowContext(ctx, query, id)
 
 	var user models.User
 

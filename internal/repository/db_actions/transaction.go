@@ -1,6 +1,7 @@
 package dbactions
 
 import (
+	"context"
 	"errors"
 	"finance_manager/internal/models"
 
@@ -20,7 +21,7 @@ func NewTransactionRepository(db *sqlx.DB) *TransactionRepository {
 	return &TransactionRepository{db: db}
 }
 
-func (t TransactionRepository) Transaction(fromID, toID, amount int) error {
+func (t TransactionRepository) Transaction(ctx context.Context, fromID, toID, amount int) error {
 	fromUser, err := t.DBSelectUserInfoByID(fromID)
 	if err != nil {
 		return err

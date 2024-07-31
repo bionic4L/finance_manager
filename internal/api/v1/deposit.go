@@ -24,6 +24,7 @@ func DepositRouter(r *gin.Engine, service *service.DepositService) {
 
 func (d *Deposit) Deposit(c *gin.Context) {
 	var dep *models.Deposit
+	ctx := c.Request.Context()
 
 	jsonRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -46,7 +47,7 @@ func (d *Deposit) Deposit(c *gin.Context) {
 		return
 	}
 
-	if err := d.service.Deposit(dep.UserID, dep.DepositAmount); err != nil {
+	if err := d.service.Deposit(ctx, dep.UserID, dep.DepositAmount); err != nil {
 		log.Print(err)
 		c.Status(400)
 		return

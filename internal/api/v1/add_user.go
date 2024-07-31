@@ -18,13 +18,13 @@ type CreateUser struct {
 
 func CreateUserRouter(r *gin.Engine, service *service.CreateUserService) {
 	cu := &CreateUser{service: service}
-
 	r.POST("/user-add", cu.addUser)
 }
 
 func (cu *CreateUser) addUser(c *gin.Context) {
-	var u *models.User
+	ctx := c.Request.Context()
 
+	var u *models.User
 	jsonRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.Status(400)
@@ -46,7 +46,7 @@ func (cu *CreateUser) addUser(c *gin.Context) {
 		return
 	}
 
-	if err := cu.service.UserCreate(u.Name); err != nil {
+	if err := cu.service.UserCreate(ctx, u.Name); err != nil {
 		log.Error(err)
 		c.Status(400)
 		return

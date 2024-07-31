@@ -1,6 +1,7 @@
 package dbactions
 
 import (
+	"context"
 	"errors"
 	"finance_manager/internal/models"
 
@@ -23,7 +24,7 @@ func NewDepositRepository(db *sqlx.DB) *DepositRepository {
 	return &DepositRepository{db: db}
 }
 
-func (d *DepositRepository) Deposit(user_id int, depAmount int) error {
+func (d *DepositRepository) Deposit(ctx context.Context, user_id int, depAmount int) error {
 	userInfo, err := d.DBSelectUserInfoByID(user_id)
 	if err != nil {
 		log.Error("error while selecting balance")

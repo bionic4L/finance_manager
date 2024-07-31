@@ -49,7 +49,16 @@ func Run(configPath string) error {
 	log.Info("router cooked!")
 
 	log.Info("*****starting*****")
-	router.Run(cfg.HTTPServer.Address)
+	router.Run(cfg.HTTPServer.Address) // go func
+
+	//router shutdown
+
+	// srv := http.Server{
+	// 	Addr:    cfg.HTTPServer.Address,
+	// 	Handler: router.Handler(),
+	// }
+
+	// srv.Shutdown()
 
 	return nil
 }

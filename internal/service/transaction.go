@@ -1,6 +1,9 @@
 package service
 
-import "finance_manager/internal/repository"
+import (
+	"context"
+	"finance_manager/internal/repository"
+)
 
 type TransactionService struct {
 	repository repository.TransactionRepository
@@ -10,8 +13,8 @@ func NewTransactionService(repository repository.TransactionRepository) *Transac
 	return &TransactionService{repository: repository}
 }
 
-func (ts *TransactionService) Transaction(fromID int, toID int, amount int) error {
-	if err := ts.repository.Transaction(fromID, toID, amount); err != nil {
+func (ts *TransactionService) Transaction(ctx context.Context, fromID int, toID int, amount int) error {
+	if err := ts.repository.Transaction(ctx, fromID, toID, amount); err != nil {
 		return err
 	}
 	return nil
