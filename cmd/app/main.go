@@ -2,9 +2,12 @@ package main
 
 import (
 	"finance_manager/internal/app"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	log.Fatal(app.Run("config/local.yaml"))
+	if err := app.Run("config/local.yaml"); err != nil {
+		log.Fatal(err)
+	}
 }

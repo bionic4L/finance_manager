@@ -25,6 +25,7 @@ func TransactionRouter(r *gin.Engine, service *service.TransactionService) {
 func (t *Transaction) Transaction(c *gin.Context) {
 	var transactionModel *models.Transaction
 	ctx := c.Request.Context()
+	//time.Sleep(30 * time.Second)
 
 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {

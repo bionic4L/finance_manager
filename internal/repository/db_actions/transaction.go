@@ -38,12 +38,10 @@ func (t TransactionRepository) Transaction(ctx context.Context, fromID, toID, am
 	}
 
 	if fromUser.Balance-amount < 0 {
-		log.Error("недостаточно средств")
-		return errors.New("отрицательный баланс")
+		return errors.New("недостаточно средств")
 	}
 
 	if amount < 1 {
-		log.Error("перевод меньше минимальной суммы")
 		return errors.New("перевод меньше минимальной суммы")
 	}
 
@@ -59,7 +57,6 @@ func (t TransactionRepository) Transaction(ctx context.Context, fromID, toID, am
 
 func (t *TransactionRepository) DBSelectUserInfoByID(user_id int) (*models.User, error) {
 	var user models.User
-
 	row := t.db.QueryRow(queryGetUserInfoByID, user_id)
 
 	if err := row.Scan(&user.ID, &user.Name, &user.Balance); err != nil {
@@ -70,15 +67,33 @@ func (t *TransactionRepository) DBSelectUserInfoByID(user_id int) (*models.User,
 }
 
 func (t *TransactionRepository) DBUpdateBalanceTransaction(fromUser, toUser *models.User, amount int) error {
-	_, err := t.db.Exec(queryUpdateUserBalanceMinus, amount, fromUser.ID)
+	tx, err := t.db.Begin()
 	if err != nil {
 		return err
 	}
-
-	_, errr := t.db.Exec(queryUpdateUserBalancePlus, amount, toUser.ID)
-	if errr != nil {
-		return errr
+	_, err = tx.Exec(queryUpdateUserBalanceMinus, amount, fromUser.ID)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
 	}
+
+	_, err = tx.Exec(queryUpdateUserBalancePlus, amount, toUser.ID)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
+	}
+
 	return nil
 }
 

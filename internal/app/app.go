@@ -1,10 +1,15 @@
 package app
 
 import (
+	"context"
 	v1 "finance_manager/internal/api/v1"
 	"finance_manager/internal/config"
 	"finance_manager/internal/db/postgresql"
 	"finance_manager/internal/repository"
+	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -49,16 +54,36 @@ func Run(configPath string) error {
 	log.Info("router cooked!")
 
 	log.Info("*****starting*****")
-	router.Run(cfg.HTTPServer.Address) // go func
+	// router.Run(cfg.Address)
+	srv := &http.Server{
+		Addr:    cfg.Address,
+		Handler: router.Handler(),
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+		log.Print(srv.Addr)
+	}()
 
-	//router shutdown
+	// graceful shutdown
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
 
-	// srv := http.Server{
-	// 	Addr:    cfg.HTTPServer.Address,
-	// 	Handler: router.Handler(),
-	// }
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("some issues while shutting down server")
+		return err
+	}
 
-	// srv.Shutdown()
-
-	return nil
+	for {
+		select {
+		case <-ctx.Done():
+			log.Info("ready for break down that shit (gracefully)...")
+			srv.Shutdown(ctx)
+			return nil
+		case <-time.After(60 * time.Second): //я так понимаю эта тема как раз для крона раз в месяц
+			log.Info("60 seconds gone")
+		}
+	}
+	// return nil
 }
