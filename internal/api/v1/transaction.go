@@ -4,72 +4,66 @@ import (
 	"encoding/json"
 	"errors"
 	"finance_manager/internal/models"
-	dbactions "finance_manager/internal/repository/db_actions"
+	"finance_manager/internal/service"
 	"io"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Transaction(c *gin.Context) {
-	if err := ValidateTransaction(c); err != nil {
-		c.Status(400)
-		log.Print("валидация запроса не пройдена")
-		return
-	}
-	c.Status(200)
+type Transaction struct {
+	service *service.TransactionService
 }
 
-func ValidateTransaction(c *gin.Context) error {
-	var t models.Transaction
+func TransactionRouter(r *gin.Engine, service *service.TransactionService) {
+	t := Transaction{service: service}
+
+	r.POST("/transaction", t.Transaction)
+}
+
+func (t *Transaction) Transaction(c *gin.Context) {
+	var transactionModel *models.Transaction
+	ctx := c.Request.Context()
 
 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.Status(400)
-		return errors.New("ошибка чтения тела запроса")
+		log.Error(errors.New("ошибка чтения тела запроса"))
+		return
 	}
 
-	if err := json.Unmarshal(JSONRequestBody, &t); err != nil {
+	if err := json.Unmarshal(JSONRequestBody, &transactionModel); err != nil {
 		c.Status(400)
-		return errors.New("ошибка декодирования json")
+		log.Error(errors.New("ошибка декодирования json"))
+		return
 	}
 
-	if c.Request.Method != "POST" {
-		c.Status(405)
-		return errors.New("метод не поддерживается")
-	}
-
-	if c.Request.Header.Get("Content-Type") != "application/json" {
-		c.Status(415)
-		return errors.New("неподдерживаемый тип контента")
-	}
-
-	db := dbactions.TransactionInfo{}
-	transaction, user, err := db.Transaction(t.FromID, t.ToID, t.Amount)
-	if t.FromID != transaction.FromID || t.ToID != transaction.ToID {
+	if err := ValidateTransaction(c, transactionModel); err != nil {
 		c.Status(400)
-		c.Writer.Write([]byte("пользователь(и) с таким id не найдены"))
-		log.Print(t.FromID)
-		log.Print(t.ToID)
-		log.Print(transaction.FromID)
-		log.Print(transaction.ToID)
-		return errors.New("пользователь(и) с таким id не найдены")
+		c.Writer.Write([]byte("валидация запроса не пройдена: проверьте, что вы ввели корректные данные"))
+		log.Warn(err)
+		return
 	}
 
-	if t.FromID == t.ToID {
-		c.Status(400)
-		c.Writer.Write([]byte("нельзя перевести средства самому себе"))
-		return errors.New("нельзя перевести средства самому себе")
-	}
-
-	if err != nil {
+	if err := t.service.Transaction(ctx, transactionModel.FromID, transactionModel.ToID, transactionModel.Amount); err != nil {
 		c.Status(400)
 		c.Writer.Write([]byte("ошибка во время выполнения транзакции"))
-		return errors.New("ошибка во время выполнения транзакции")
+		log.Error(err)
+		return
 	}
 
-	c.JSON(200, transaction)
-	c.JSON(200, user)
+	c.Writer.Write([]byte("перевод выполнен!"))
+	c.Status(200)
+}
 
-	return nil
+func ValidateTransaction(c *gin.Context, transactionModel *models.Transaction) error {
+	switch {
+	case transactionModel.Amount < 1:
+		return errors.New("transaction amount cannot be less than 1")
+	case transactionModel.FromID < 1 || transactionModel.ToID < 1:
+		return errors.New("user id cannot be less than 1")
+	default:
+		return nil
+	}
 }

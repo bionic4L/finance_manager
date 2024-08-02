@@ -2,31 +2,48 @@ package v1
 
 import (
 	"errors"
-	dbactions "finance_manager/internal/repository/db_actions"
+	"finance_manager/internal/service"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
 
-func getBalance(c *gin.Context) {
-	err := ValidateGetBalance(c)
-	if err != nil {
+type Balance struct {
+	service *service.BalanceService
+}
+
+func BalanceRouter(r *gin.Engine, service *service.BalanceService) {
+	b := &Balance{service: service}
+
+	r.GET("/balance", b.getBalance)
+}
+
+func (b *Balance) getBalance(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	if err := ValidateGetBalance(c); err != nil {
+		c.Writer.Write([]byte("валидация запроса не пройдена"))
+		log.Error(err)
 		return
 	}
-	userID := c.Query("id")
-	IDInt, _ := strconv.Atoi(userID)
+	userID, _ := strconv.Atoi(c.Query("id"))
 
-	db := dbactions.User{}
-	ud, _ := db.GetUserBalance()
+	userData, err := b.service.GetBalance(ctx, userID) //прокид с транспортного уровня на сервисный
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
-	if ud.ID != IDInt {
+	if userData.ID != userID {
 		c.Status(404)
 		c.Writer.Write([]byte("пользователь с таким id не найден"))
 		return
 	}
 
 	c.Status(200)
-	c.JSON(200, ud)
+	c.JSON(200, userData)
 }
 
 func ValidateGetBalance(c *gin.Context) error {
@@ -36,12 +53,6 @@ func ValidateGetBalance(c *gin.Context) error {
 		c.Status(422)
 		c.Writer.Write([]byte("вы забыли указать параметр 'id'"))
 		return errors.New("вы забыли указать параметр 'id'")
-	}
-
-	if c.Request.Method != "GET" {
-		c.Status(405)
-		c.Writer.Write([]byte("метод не поддерживается"))
-		return errors.New("метод не поддерживается")
 	}
 
 	idFig, err := strconv.Atoi(userID)
