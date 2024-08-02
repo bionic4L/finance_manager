@@ -19,17 +19,19 @@ func OpenPosgresDB(cfg *config.PostgreSQL_DB) (*sqlx.DB, error) {
 		"postgres",
 		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode))
 	if err != nil {
+		log.Error("cannot open the DB")
 		return nil, err
 	}
 
 	if err := db.Ping(); err != nil {
+		log.Error("pinged DB but there is no answer")
 		return nil, err
 	}
 
 	DB := db.DB
-	log.Print("creating migrations...")
+	log.Print("cooking migrations...")
 	if err := goose.Up(DB, "D:/LRN GO/finance_manager/internal/db/postgresql/migrations"); err != nil {
-		log.Print("migrations not applied")
+		log.Warn("migrations not applied")
 		return nil, err
 	}
 	// if err := goose.Down(DB, "D:/LRN GO/finance_manager/internal/db/postgresql/migrations"); err != nil {

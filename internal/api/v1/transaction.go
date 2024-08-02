@@ -25,7 +25,6 @@ func TransactionRouter(r *gin.Engine, service *service.TransactionService) {
 func (t *Transaction) Transaction(c *gin.Context) {
 	var transactionModel *models.Transaction
 	ctx := c.Request.Context()
-	//time.Sleep(30 * time.Second)
 
 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -40,16 +39,17 @@ func (t *Transaction) Transaction(c *gin.Context) {
 		return
 	}
 
+	if err := ValidateTransaction(c, transactionModel); err != nil {
+		c.Status(400)
+		c.Writer.Write([]byte("валидация запроса не пройдена: проверьте, что вы ввели корректные данные"))
+		log.Warn(err)
+		return
+	}
+
 	if err := t.service.Transaction(ctx, transactionModel.FromID, transactionModel.ToID, transactionModel.Amount); err != nil {
 		c.Status(400)
 		c.Writer.Write([]byte("ошибка во время выполнения транзакции"))
 		log.Error(err)
-		return
-	}
-
-	if err := ValidateTransaction(c, transactionModel); err != nil {
-		c.Status(400)
-		log.Warn("валидация запроса не пройдена")
 		return
 	}
 
@@ -58,5 +58,12 @@ func (t *Transaction) Transaction(c *gin.Context) {
 }
 
 func ValidateTransaction(c *gin.Context, transactionModel *models.Transaction) error {
-	return nil
+	switch {
+	case transactionModel.Amount < 1:
+		return errors.New("transaction amount cannot be less than 1")
+	case transactionModel.FromID < 1 || transactionModel.ToID < 1:
+		return errors.New("user id cannot be less than 1")
+	default:
+		return nil
+	}
 }

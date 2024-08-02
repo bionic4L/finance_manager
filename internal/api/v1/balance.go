@@ -23,15 +23,16 @@ func BalanceRouter(r *gin.Engine, service *service.BalanceService) {
 func (b *Balance) getBalance(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	err := ValidateGetBalance(c)
-	if err != nil {
+	if err := ValidateGetBalance(c); err != nil {
+		c.Writer.Write([]byte("валидация запроса не пройдена"))
+		log.Error(err)
 		return
 	}
 	userID, _ := strconv.Atoi(c.Query("id"))
 
 	userData, err := b.service.GetBalance(ctx, userID) //прокид с транспортного уровня на сервисный
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return
 	}
 

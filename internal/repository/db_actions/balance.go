@@ -5,6 +5,7 @@ import (
 	"finance_manager/internal/models"
 
 	"github.com/jmoiron/sqlx"
+	log "github.com/sirupsen/logrus"
 )
 
 type BalanceRepository struct {
@@ -22,6 +23,7 @@ func (br *BalanceRepository) GetUserBalance(ctx context.Context, id int) (*model
 	var user models.User
 
 	if err := row.Scan(&user.ID, &user.Name, &user.Balance); err != nil {
+		log.Error("error while scanning user info")
 		return nil, err
 	}
 

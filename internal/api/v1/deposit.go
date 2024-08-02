@@ -29,7 +29,7 @@ func (d *Deposit) Deposit(c *gin.Context) {
 	jsonRequestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.Status(400)
-		log.Print(errors.New("ошибка чтения тела запроса"))
+		log.Error(errors.New("ошибка чтения тела запроса"))
 		return
 	}
 
@@ -42,13 +42,13 @@ func (d *Deposit) Deposit(c *gin.Context) {
 
 	if err := ValidateDeposit(c, dep); err != nil {
 		c.Status(400)
-		log.Print("валидация запроса не пройдена")
-		log.Print(err)
+		log.Warn("валидация запроса не пройдена")
+		log.Error(err)
 		return
 	}
 
 	if err := d.service.Deposit(ctx, dep.UserID, dep.DepositAmount); err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.Status(400)
 		return
 	}

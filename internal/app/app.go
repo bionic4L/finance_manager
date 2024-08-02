@@ -7,9 +7,9 @@ import (
 	"finance_manager/internal/db/postgresql"
 	"finance_manager/internal/repository"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -25,7 +25,8 @@ func Run(configPath string) error {
 	router := gin.Default()
 
 	if err != nil {
-		log.Fatal("config not cooked :(")
+		log.Error("config not cooked :(")
+		return err
 	}
 	log.Info("config cooked!")
 
@@ -39,13 +40,13 @@ func Run(configPath string) error {
 		SSLMode:  cfg.PostgreSQL_DB.SSLMode,
 	})
 	if err != nil {
-		log.Print(err)
-		log.Fatal("db not cooked :(")
+		log.Error("db not cooked :(")
+		return err
 	}
 	defer postgresql.CloseConnection(db.DB)
 	log.Info("db is active!")
 
-	log.Info("creating repository...")
+	log.Info("cooking repository...")
 	rootRepository := repository.NewRepository(db)
 	log.Info("repository cooked!")
 
@@ -54,36 +55,40 @@ func Run(configPath string) error {
 	log.Info("router cooked!")
 
 	log.Info("*****starting*****")
-	// router.Run(cfg.Address)
 	srv := &http.Server{
 		Addr:    cfg.Address,
 		Handler: router.Handler(),
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			log.Fatalf("cannot start srv listening cause: %s\n", err)
 		}
-		log.Print(srv.Addr)
 	}()
 
 	// graceful shutdown
+	exitSig := make(chan os.Signal, 1)
+	signal.Notify(exitSig, syscall.SIGINT, syscall.SIGTERM)
+	<-exitSig
+	log.Info("ready for break down that shit ~gracefully~")
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
-
+	log.Info("waiting for all proccesses done...")
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("some issues while shutting down server")
+		log.Errorf("error while shutting down server: %s", err)
 		return err
 	}
+	log.Info("program has gracefully downed")
+	// for {
+	// 	select {
+	// 	case <-ctx.Done():
+	//
+	// 		srv.Shutdown(ctx)
+	// 		return nil
+	// 	case <-time.After(1 * time.Second): //я так понимаю эта тема как раз для крона раз в месяц
+	// 		log.Info("5 seconds gone")
+	// 	}
+	// }
 
-	for {
-		select {
-		case <-ctx.Done():
-			log.Info("ready for break down that shit (gracefully)...")
-			srv.Shutdown(ctx)
-			return nil
-		case <-time.After(60 * time.Second): //я так понимаю эта тема как раз для крона раз в месяц
-			log.Info("60 seconds gone")
-		}
-	}
-	// return nil
+	return nil
+
 }
