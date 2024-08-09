@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"crypto/tls"
 	v1 "finance_manager/internal/api/v1"
 	"finance_manager/internal/config"
 	"finance_manager/internal/db/postgresql"
@@ -56,8 +57,9 @@ func Run(configPath string) error {
 
 	log.Info("*****starting*****")
 	srv := &http.Server{
-		Addr:    cfg.Address,
-		Handler: router.Handler(),
+		Addr:      cfg.Address,
+		Handler:   router.Handler(),
+		TLSConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

@@ -1,0 +1,23 @@
+version: '4.33.1'
+
+services:
+  finance_manager:
+    build: ./
+    command: ./finance_manager
+    ports:
+      - 7778:7778
+    depends_on:
+      - db
+    
+
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./internal/db/postgresql:/var/lib/postgresql
+    ports:
+      - 8888:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres #12345
+      - POSTGRES_USER=postgres #bionic4l
+      - POSTGRES_DB=fm_db

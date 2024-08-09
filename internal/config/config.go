@@ -9,7 +9,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-const PATH = "D:/LRN GO/finance_manager/config/local.yaml"
+const PATH = "./config/local.yaml"
 
 type (
 	Config struct {
