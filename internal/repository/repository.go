@@ -24,18 +24,29 @@ type TransactionRepository interface {
 	Transaction(ctx context.Context, fromID, toID, amount int) error
 }
 
+type ReservationRepository interface {
+	Reservation(ctx context.Context, fromID, toID, amount int) error
+}
+
+type StatusControllerRepository interface {
+	StatusController(ctx context.Context, transactionID int, confirmTransaction bool) error
+}
+
 type Repository struct {
 	BalanceRepository
 	DepositRepository
 	UserCreateRepository
 	TransactionRepository
+	ReservationRepository
+	StatusControllerRepository
 }
 
 func NewRepository(DB *sqlx.DB) *Repository {
 	return &Repository{
-		BalanceRepository:     dbactions.NewBalanceRepository(DB),
-		DepositRepository:     dbactions.NewDepositRepository(DB),
-		UserCreateRepository:  dbactions.NewCreateUserRepository(DB),
-		TransactionRepository: dbactions.NewTransactionRepository(DB),
+		BalanceRepository:          dbactions.NewBalanceRepository(DB),
+		DepositRepository:          dbactions.NewDepositRepository(DB),
+		UserCreateRepository:       dbactions.NewCreateUserRepository(DB),
+		TransactionRepository:      dbactions.NewTransactionRepository(DB),
+		StatusControllerRepository: dbactions.NewStatusControllerRepository(DB),
 	}
 }

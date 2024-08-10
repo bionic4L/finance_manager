@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"finance_manager/internal/config"
 	_ "finance_manager/internal/db/postgresql/migrations"
+	"flag"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
@@ -28,12 +29,25 @@ func OpenPosgresDB(cfg *config.PostgreSQL_DB) (*sqlx.DB, error) {
 		return nil, err
 	}
 
+	//migration down flag
+	downFlag := flag.Int64("down", -1, "down 1 migration")
+	flag.Parse()
+
 	DB := db.DB
 	log.Print("cooking migrations...")
-	if err := goose.Up(DB, "D:/LRN GO/finance_manager/internal/db/postgresql/migrations"); err != nil {
-		log.Warn("migrations not applied")
-		return nil, err
+	if *downFlag != -1 {
+		if err := goose.DownTo(DB, "./internal/db/postgresql/migrations", *downFlag); err != nil {
+			log.Warn("migrations not downed")
+			return nil, err
+		}
+		log.Info("1 migration downed")
+	} else {
+		if err := goose.Up(DB, "./internal/db/postgresql/migrations"); err != nil {
+			log.Warn("migrations not applied")
+			return nil, err
+		}
 	}
+
 	// if err := goose.Down(DB, "D:/LRN GO/finance_manager/internal/db/postgresql/migrations"); err != nil {
 	// 	log.Print("migrations not applied")
 	// 	return nil, err

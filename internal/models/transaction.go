@@ -1,8 +1,14 @@
 package models
 
+import "time"
+
 type Transaction struct {
-	ID     int `json:"id"`
-	FromID int `json:"from_id"`
-	ToID   int `json:"to_id"`
-	Amount int `json:"amount"`
+	ID         int       `json:"transactions_id"`
+	FromID     int       `json:"from_id"`
+	ToID       int       `json:"to_id"`
+	Amount     int       `json:"amount"`
+	Date       time.Time `json:"transactions_date"`
+	IsPending  bool      `json:"is_pending"`
+	IsDone     bool      `json:"is_done"`
+	IsCanceled bool      `json:"is_canceled"`
 }

@@ -12,4 +12,5 @@ func Router(router *gin.Engine, repository *repository.Repository) {
 	DepositRouter(router, service.NewDepositService(repository.DepositRepository))
 	CreateUserRouter(router, service.NewCreateUserService(repository.UserCreateRepository))
 	TransactionRouter(router, service.NewTransactionService(repository.TransactionRepository))
+	StatusControllerRouter(router, service.NewStatusControllerService(repository.StatusControllerRepository))
 }

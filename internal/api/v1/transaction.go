@@ -53,7 +53,7 @@ func (t *Transaction) Transaction(c *gin.Context) {
 		return
 	}
 
-	c.Writer.Write([]byte("перевод выполнен!"))
+	c.Writer.Write([]byte("заявка на перевод создана"))
 	c.Status(200)
 }
 
