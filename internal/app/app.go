@@ -7,9 +7,11 @@ import (
 	"finance_manager/internal/db/postgresql"
 	"finance_manager/internal/repository"
 	"net/http"
-	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	"github.com/robfig/cron"
 
 	log "github.com/sirupsen/logrus"
 
@@ -65,30 +67,44 @@ func Run(configPath string) error {
 		}
 	}()
 
+	//cron
+	c := cron.New()
+	c.AddFunc("@every 00h00m10s", func() {
+		Report(context.Background(), db)
+	})
+	go func() {
+		c.Start()
+		log.Info("запустили крон в отдельной горутине")
+	}()
+
 	// graceful shutdown
-	exitSig := make(chan os.Signal, 1)
-	signal.Notify(exitSig, syscall.SIGINT, syscall.SIGTERM)
-	<-exitSig
-	log.Info("ready for break down that shit ~gracefully~")
+	// exitSig := make(chan os.Signal, 1)
+	// signal.Notify(exitSig, syscall.SIGINT, syscall.SIGTERM)
+	// <-exitSig
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
-	log.Info("waiting for all proccesses done...")
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Errorf("error while shutting down server: %s", err)
-		return err
-	}
-	log.Info("program has gracefully downed")
-	// for {
-	// 	select {
-	// 	case <-ctx.Done():
-	//
-	// 		srv.Shutdown(ctx)
-	// 		return nil
-	// 	case <-time.After(1 * time.Second): //я так понимаю эта тема как раз для крона раз в месяц
-	// 		log.Info("5 seconds gone")
-	// 	}
-	// }
 
-	return nil
+	for {
+		select {
+		case <-ctx.Done():
+			log.Info("ready for break down that shit ~gracefully~")
+
+			if err := srv.Shutdown(ctx); err != nil {
+				log.Errorf("error while shutting down server: %s", err)
+				return err
+			}
+			c.Stop() //stopping cron
+			log.Info("program has gracefully downed")
+			return nil
+		case <-time.After(15 * time.Second): //а нужно ли? если в кроне и так ставится период повтора
+			log.Info("5 seconds gone")
+			// if err := Report(ctx, db); err != nil {
+			// 	log.Error(err)
+			// }
+		}
+	}
+
+	//return nil
 
 }
