@@ -27,42 +27,39 @@ func (t *Transaction) Transaction(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	JSONRequestBody, err := io.ReadAll(c.Request.Body)
+	defer c.Request.Body.Close()
 	if err != nil {
 		c.Status(400)
-		log.Error(errors.New("ошибка чтения тела запроса"))
+		log.Error("ошибка чтения тела запроса", err)
 		return
 	}
 
 	if err := json.Unmarshal(JSONRequestBody, &transactionModel); err != nil {
-		c.Status(400)
-		log.Error(errors.New("ошибка декодирования json"))
+		c.JSON(400, "проверьте правильность введенных данных")
+		log.Error("ошибка декодирования json", err)
 		return
 	}
 
 	if err := ValidateTransaction(c, transactionModel); err != nil {
-		c.Status(400)
-		c.Writer.Write([]byte("валидация запроса не пройдена: проверьте, что вы ввели корректные данные"))
-		log.Warn(err)
+		c.JSON(400, "валидация запроса не пройдена")
+		log.Error("ошибка валидации: ", err)
 		return
 	}
 
 	if err := t.service.Transaction(ctx, transactionModel.FromID, transactionModel.ToID, transactionModel.Amount); err != nil {
-		c.Status(400)
-		c.Writer.Write([]byte("ошибка во время выполнения транзакции"))
-		log.Error(err)
+		c.JSON(400, "ошибка во время выполнения транзакции")
+		log.Error("ошибка во время выполнения транзакции", err)
 		return
 	}
-
-	c.Writer.Write([]byte("перевод выполнен!"))
-	c.Status(200)
+	c.JSON(200, "перевод выполнен!")
 }
 
 func ValidateTransaction(c *gin.Context, transactionModel *models.Transaction) error {
 	switch {
 	case transactionModel.Amount < 1:
-		return errors.New("transaction amount cannot be less than 1")
+		return errors.New("сумма транзакции не может быть меньше 1")
 	case transactionModel.FromID < 1 || transactionModel.ToID < 1:
-		return errors.New("user id cannot be less than 1")
+		return errors.New("id пользователя не может быть меньше 1")
 	default:
 		return nil
 	}

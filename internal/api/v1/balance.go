@@ -24,25 +24,23 @@ func (b *Balance) getBalance(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	if err := ValidateGetBalance(c); err != nil {
-		c.Writer.Write([]byte("валидация запроса не пройдена"))
-		log.Error(err)
+		c.JSON(400, "валидация запроса не пройдена")
+		log.Error("ошибка валидации запроса: ", err)
 		return
 	}
 	userID, _ := strconv.Atoi(c.Query("id"))
 
 	userData, err := b.service.GetBalance(ctx, userID) //прокид с транспортного уровня на сервисный
 	if err != nil {
+		c.JSON(400, "ошибка во время получения баланса")
 		log.Error(err)
 		return
 	}
 
 	if userData.ID != userID {
-		c.Status(404)
-		c.Writer.Write([]byte("пользователь с таким id не найден"))
+		c.JSON(404, "пользователь с таким id не найден")
 		return
 	}
-
-	c.Status(200)
 	c.JSON(200, userData)
 }
 
@@ -50,22 +48,16 @@ func ValidateGetBalance(c *gin.Context) error {
 	userID := c.Query("id")
 
 	if userID == "" {
-		c.Status(422)
-		c.Writer.Write([]byte("вы забыли указать параметр 'id'"))
 		return errors.New("вы забыли указать параметр 'id'")
 	}
 
 	idFig, err := strconv.Atoi(userID)
 
 	if err != nil {
-		c.Status(422)
-		c.Writer.Write([]byte("параметр 'id' должен быть цифрой."))
 		return errors.New("параметр 'id' должен быть цифрой")
 	}
 
 	if idFig < 0 {
-		c.Status(422)
-		c.Writer.Write([]byte("id не может быть отрицательным"))
 		return errors.New("id не может быть отрицательным")
 	}
 

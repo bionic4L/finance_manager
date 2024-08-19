@@ -1,12 +1,18 @@
 env: "local"
 db_path: "./repository"
 http_server:
+  # address: "0.0.0.0:7778"
   address: "localhost:7777"
   timeout: 5s
   idle_timeout: 60s
 postgres_db:
+  # host: "db"
+  # port:  "5432"
+  # user: "postgres"
+  # password: "postgres"
+  # db_name: "postgres"
   host: "0.0.0.0"
-  port: "8888"
+  port:  "8888"
   user: "bionic4l"
   password: "12345"
   db_name: "fm_db"

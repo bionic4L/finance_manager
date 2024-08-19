@@ -12,8 +12,8 @@ func init() {
 
 func upUsers(tx *sql.Tx) error {
 	query := `CREATE TABLE IF NOT EXISTS users (
-    			"id" SERIAL PRIMARY KEY,
-				"name" VARCHAR(25),
+    			"id" SERIAL PRIMARY KEY NOT NULL,
+				"name" VARCHAR(25) NOT NULL,
     			"balance" INTEGER DEFAULT 0);`
 	_, err := tx.Exec(query)
 	if err != nil {

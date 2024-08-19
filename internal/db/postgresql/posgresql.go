@@ -30,7 +30,7 @@ func OpenPosgresDB(cfg *config.PostgreSQL_DB) (*sqlx.DB, error) {
 
 	DB := db.DB
 	log.Print("cooking migrations...")
-	if err := goose.Up(DB, "D:/LRN GO/finance_manager/internal/db/postgresql/migrations"); err != nil {
+	if err := goose.Up(DB, "./internal/db/postgresql/migrations"); err != nil {
 		log.Warn("migrations not applied")
 		return nil, err
 	}
