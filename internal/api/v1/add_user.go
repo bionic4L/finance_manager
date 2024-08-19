@@ -22,26 +22,25 @@ func CreateUserRouter(r *gin.Engine, service *service.CreateUserService) {
 }
 
 func (cu *CreateUser) addUser(c *gin.Context) {
+	var u *models.User
 	ctx := c.Request.Context()
 
-	var u *models.User
 	jsonRequestBody, err := io.ReadAll(c.Request.Body)
+	defer c.Request.Body.Close()
 	if err != nil {
 		c.Status(400)
-		log.Error(errors.New("ошибка чтения тела запроса"))
+		log.Error("ошибка чтения тела запроса: ", err)
 		return
 	}
 
 	if err := json.Unmarshal(jsonRequestBody, &u); err != nil {
-		c.Status(400)
-		c.Writer.Write([]byte("убедитесь, что вы ввели корректные данные"))
-		log.Error(errors.New("ошибка декодирования json"))
+		c.JSON(400, "проверьте правильность введенных данных")
+		log.Error("ошибка декодирования json: ", err)
 		return
 	}
 
 	if err := ValidateAddUser(c, u); err != nil {
-		c.Status(400)
-		c.Writer.Write([]byte("валидация запроса не пройдена"))
+		c.JSON(400, "валидация запроса не пройдена")
 		log.Warn(err)
 		return
 	}
@@ -51,10 +50,7 @@ func (cu *CreateUser) addUser(c *gin.Context) {
 		c.Status(400)
 		return
 	}
-
-	c.Status(200)
-	c.JSON(200, u.Name)
-	c.Writer.Write([]byte("пользователь создан!"))
+	c.JSON(200, "пользователь создан")
 
 }
 

@@ -12,10 +12,10 @@ func init() {
 
 func upTransactions(tx *sql.Tx) error {
 	query := `CREATE TABLE IF NOT EXISTS transactions (
-				transaction_id SERIAL PRIMARY KEY,
-				from_id INT,
-				to_id INT,
-				amount INT,
+				transaction_id SERIAL PRIMARY KEY NOT NULL,
+				from_id INT NOT NULL,
+				to_id INT NOT NULL,
+				amount INT NOT NULL,
 				FOREIGN KEY (from_id) REFERENCES users(id),
 				FOREIGN KEY (to_id) REFERENCES users(id)
 );`

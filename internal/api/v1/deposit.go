@@ -27,35 +27,31 @@ func (d *Deposit) Deposit(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	jsonRequestBody, err := io.ReadAll(c.Request.Body)
+	defer c.Request.Body.Close()
 	if err != nil {
 		c.Status(400)
-		log.Error(errors.New("ошибка чтения тела запроса"))
+		log.Error("ошибка чтения тела запроса: ", err)
 		return
 	}
 
 	if err := json.Unmarshal(jsonRequestBody, &dep); err != nil {
-		c.Status(400)
-		c.Writer.Write([]byte("убедитесь, что вы ввели корректные данные"))
-		log.Print(errors.New("ошибка декодирования json"))
+		c.JSON(400, "проверьте правильность введенных данных")
+		log.Error("ошибка декодирования json: ", err)
 		return
 	}
 
 	if err := ValidateDeposit(c, dep); err != nil {
-		c.Status(400)
-		log.Warn("валидация запроса не пройдена")
-		log.Error(err)
+		c.JSON(400, "валидация запроса не пройдена")
+		log.Error("ошибка валидации: ", err)
 		return
 	}
 
 	if err := d.service.Deposit(ctx, dep.UserID, dep.DepositAmount); err != nil {
-		log.Error(err)
-		c.Status(400)
+		log.Error("ошибка при выполнении депозита: ", err)
+		c.JSON(400, "ошибка при выполнении депозита")
 		return
 	}
-
-	c.Status(200)
-	// c.JSON(200, dep)
-	c.Writer.Write([]byte("успешный депозит"))
+	c.JSON(200, "успешный депозит")
 
 }
 
@@ -66,14 +62,10 @@ func ValidateDeposit(c *gin.Context, d *models.Deposit) error {
 	}
 
 	if d.DepositAmount < 0 {
-		c.Status(400)
-		c.Writer.Write([]byte("депозит не может быть отрицательным числом"))
 		return errors.New("депозит не может быть отрицательным числом")
 	}
 
 	if d.UserID <= 0 {
-		c.Status(400)
-		c.Writer.Write([]byte("id пользователя не может быть отрицательным числом"))
 		return errors.New("id пользователя не может быть отрицательным числом")
 	}
 

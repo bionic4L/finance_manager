@@ -9,9 +9,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const queryUpdateUserBalanceMinus = `UPDATE users SET balance = balance - $1 WHERE id = $2`
-const queryUpdateUserBalancePlus = `UPDATE users SET balance = balance + $1 WHERE id = $2`
-const queryInsertTransactionInfo = `INSERT INTO transactions (from_id, to_id, amount) VALUES ($1, $2, $3)`
+const (
+	queryUpdateUserBalanceMinus = `UPDATE users SET balance = balance - $1 WHERE id = $2`
+	queryUpdateUserBalancePlus  = `UPDATE users SET balance = balance + $1 WHERE id = $2`
+	queryInsertTransactionInfo  = `INSERT INTO transactions (from_id, to_id, amount) VALUES ($1, $2, $3)`
+)
 
 type TransactionRepository struct {
 	db *sqlx.DB
